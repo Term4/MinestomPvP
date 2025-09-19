@@ -55,6 +55,7 @@ public class VanillaMiscProjectileFeature implements MiscProjectileFeature, Regi
 					&& event.getItemStack().material() != Material.ENDER_PEARL)
 				return;
 
+			System.out.println("PlayerUseItemEvent fired for " + event.getItemStack().material());
 			event.setCancelled(true);
 
 			Player player = event.getPlayer();
