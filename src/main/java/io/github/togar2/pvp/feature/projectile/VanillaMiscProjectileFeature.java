@@ -89,27 +89,32 @@ public class VanillaMiscProjectileFeature implements MiscProjectileFeature, Regi
 				itemCooldownFeature.setCooldown(player, Material.ENDER_PEARL, 20);
 			}
 
-			System.out.println("Creating projectile entity #" + (++snowballCounter));
-			Pos position = player.getPosition().add(0, player.getEyeHeight(), 0);
+			// Calculate right and backward offsets
+			float yawRad = (float) Math.toRadians(player.getPosition().yaw());
 
-			//projectile.shootFromRotation(position.pitch(), position.yaw(), 0, 1.5, 1.0);
+			// Forward vector
+			double forwardX = -Math.sin(yawRad);
+			double forwardZ = Math.cos(yawRad);
 
-			Vec direction = position.direction();
-			Vec velocity = direction.mul(1.5);
-			projectile.setVelocity(velocity);
+			// Right vector
+			double rightX = -Math.sin(yawRad + Math.PI/2);
+			double rightZ = Math.cos(yawRad + Math.PI/2);
 
-			System.out.println("Velocity set to: " + projectile.getVelocity());
+			// Apply offsets
+			double rightOffset = 0.2;
+			double backwardOffset = -0.15;
+			double heightOffset = -0.1;
 
-			// Add player velocity BEFORE spawning
-			Vec playerVel = player.getVelocity();
-			projectile.setVelocity(projectile.getVelocity().add(playerVel.x(),
-					player.isOnGround() ? 0.0D : playerVel.y(), playerVel.z()));
+			Pos position = player.getPosition().add(
+					rightX * rightOffset + forwardX * backwardOffset,
+					player.getEyeHeight() + heightOffset, // Add height modifier here
+					rightZ * rightOffset + forwardZ * backwardOffset
+			);
 
-			System.out.println("About to spawn snowball #" + snowballCounter + " with ID: " + projectile.getEntityId());
+			projectile.shootFromRotation(position.pitch(), position.yaw(), 0, 1.5, 1.0);
+
 			// NOW spawn it with the correct velocity already set
-			projectile.setInstance(Objects.requireNonNull(player.getInstance()), position.withView(projectile.getPosition()));
-
-			System.out.println("Spawned snowball #" + snowballCounter);
+			projectile.setInstance(Objects.requireNonNull(player.getInstance()), position);
 
 			if (player.getGameMode() != GameMode.CREATIVE) {
 				player.setItemInHand(event.getHand(), stack.withAmount(stack.amount() - 1));

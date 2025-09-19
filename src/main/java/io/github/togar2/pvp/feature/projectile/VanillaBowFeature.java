@@ -125,12 +125,40 @@ public class VanillaBowFeature implements BowFeature, RegistrableFeature {
 			}
 			
 			// Arrow shooting
-			Pos position = player.getPosition().add(0D, player.getEyeHeight() - 0.1, 0D);
+			// Calculate spawn offset (right side, slightly back and lower)
+			float yawRad = (float) Math.toRadians(player.getPosition().yaw());
+
+			// Forward vector
+			double forwardX = -Math.sin(yawRad);
+			double forwardZ = Math.cos(yawRad);
+
+			// Right vector
+			double rightX = -Math.sin(yawRad + Math.PI/2);
+			double rightZ = Math.cos(yawRad + Math.PI/2);
+
+			// Apply offsets
+			double rightOffset = 0.17;
+			double backwardOffset = 0.1;
+			double heightOffset = -0.1;
+
+			Pos position = player.getPosition().add(
+					rightX * rightOffset + forwardX * backwardOffset,
+					player.getEyeHeight() + heightOffset, // Add height modifier here
+					rightZ * rightOffset + forwardZ * backwardOffset
+			);
+
 			arrow.shootFromRotation(position.pitch(), position.yaw(), 0 , power * 3, 1.0);
+
+			// Add player velocity BEFORE spawning
 			Vec playerVel = player.getVelocity();
-			arrow.setVelocity(arrow.getVelocity().add(playerVel.x(),
-					player.isOnGround() ? 0.0D : playerVel.y(), playerVel.z()));
-			arrow.setInstance(Objects.requireNonNull(player.getInstance()), position.withView(arrow.getPosition()));
+			double verticalMomentum = player.isOnGround() ? 0.0D : playerVel.y() * 0.1; // Only 10% of vertical momentum, left for future modifications
+			arrow.setVelocity(arrow.getVelocity().add(
+					playerVel.x(),
+					verticalMomentum,
+					playerVel.z()
+			));
+
+			arrow.setInstance(Objects.requireNonNull(player.getInstance()), position);
 			
 			ThreadLocalRandom random = ThreadLocalRandom.current();
 			ViewUtil.viewersAndSelf(player).playSound(Sound.sound(

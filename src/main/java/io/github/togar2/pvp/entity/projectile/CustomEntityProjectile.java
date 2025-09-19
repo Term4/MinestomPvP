@@ -1,6 +1,7 @@
 package io.github.togar2.pvp.entity.projectile;
 
 import io.github.togar2.pvp.utils.ProjectileUtil;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.ServerFlag;
 import net.minestom.server.collision.*;
 import net.minestom.server.coordinate.BlockVec;
@@ -15,6 +16,7 @@ import net.minestom.server.event.entity.projectile.ProjectileCollideWithEntityEv
 import net.minestom.server.event.entity.projectile.ProjectileUncollideEvent;
 import net.minestom.server.instance.Chunk;
 import net.minestom.server.instance.block.Block;
+import net.minestom.server.timer.TaskSchedule;
 import net.minestom.server.utils.chunk.ChunkCache;
 import net.minestom.server.utils.chunk.ChunkUtils;
 import org.jetbrains.annotations.NotNull;
@@ -47,7 +49,7 @@ public class CustomEntityProjectile extends Entity {
 		this.shooter = shooter;
 		setup();
 	}
-	
+
 	private void setup() {
 		collidesWithEntities = false;
 		preventBlockPlacement = false;
@@ -132,6 +134,11 @@ public class CustomEntityProjectile extends Entity {
 				(float) Math.toDegrees(Math.atan2(dx, dz)),
 				(float) Math.toDegrees(Math.atan2(dy, Math.sqrt(dx * dx + dz * dz)))
 		);
+
+		// Schedule velocity sync for after entity spawns
+		MinecraftServer.getSchedulerManager().buildTask(() -> {
+			this.setVelocity(this.getVelocity());
+		}).schedule();
 	}
 	
 	private void shoot(@NotNull Pos from, @NotNull Point to, double power, double spread) {

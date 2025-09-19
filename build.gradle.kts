@@ -31,3 +31,13 @@ publishing {
         }
     }
 }
+
+tasks.register<Copy>("copyToProject") {
+    from(tasks.jar)
+    into("D:\\minecraft-test-server\\minestom\\minestom-test\\libs")
+    rename { "MinestomPvP.jar" }
+}
+
+tasks.build {
+    finalizedBy("copyToProject")
+}
