@@ -87,12 +87,7 @@ public class VanillaMiscProjectileFeature implements MiscProjectileFeature, Regi
 				itemCooldownFeature.setCooldown(player, Material.ENDER_PEARL, 20);
 			}
 
-			Vec direction = player.getPosition().direction();
-			Pos position = player.getPosition().add(
-					direction.x() * 0.8,  // Forward offset
-					player.getEyeHeight() - 0.1,  // Slightly below eye level
-					direction.z() * 0.8   // Forward offset
-			);
+			Pos position = player.getPosition().add(0, player.getEyeHeight(), 0);
 			projectile.shootFromRotation(position.pitch(), position.yaw(), 0, 1.5, 1.0);
 			projectile.setInstance(Objects.requireNonNull(player.getInstance()), position.withView(projectile.getPosition()));
 			
