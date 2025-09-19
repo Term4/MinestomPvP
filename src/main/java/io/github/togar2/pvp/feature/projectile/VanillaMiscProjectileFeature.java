@@ -55,9 +55,6 @@ public class VanillaMiscProjectileFeature implements MiscProjectileFeature, Regi
 					&& event.getItemStack().material() != Material.ENDER_PEARL)
 				return;
 
-			System.out.println("PlayerUseItemEvent fired for " + event.getItemStack().material());
-			event.setCancelled(true);
-
 			Player player = event.getPlayer();
 			ItemStack stack = event.getItemStack();
 			
@@ -90,14 +87,23 @@ public class VanillaMiscProjectileFeature implements MiscProjectileFeature, Regi
 				itemCooldownFeature.setCooldown(player, Material.ENDER_PEARL, 20);
 			}
 
+			System.out.println("Creating projectile entity");
 			Pos position = player.getPosition().add(0, player.getEyeHeight(), 0);
+
+			System.out.println("Before shootFromRotation");
 			projectile.shootFromRotation(position.pitch(), position.yaw(), 0, 1.5, 1.0);
-			projectile.setInstance(Objects.requireNonNull(player.getInstance()), position.withView(projectile.getPosition()));
-			
+
+			// Add player velocity BEFORE spawning
 			Vec playerVel = player.getVelocity();
 			projectile.setVelocity(projectile.getVelocity().add(playerVel.x(),
 					player.isOnGround() ? 0.0D : playerVel.y(), playerVel.z()));
-			
+
+			System.out.println("Before setInstance - velocity is: " + projectile.getVelocity());
+			// NOW spawn it with the correct velocity already set
+			projectile.setInstance(Objects.requireNonNull(player.getInstance()), position.withView(projectile.getPosition()));
+
+			System.out.println("After setInstance");
+
 			if (player.getGameMode() != GameMode.CREATIVE) {
 				player.setItemInHand(event.getHand(), stack.withAmount(stack.amount() - 1));
 			}
