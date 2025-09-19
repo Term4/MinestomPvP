@@ -92,8 +92,7 @@ public class VanillaMiscProjectileFeature implements MiscProjectileFeature, Regi
 			System.out.println("Creating projectile entity #" + (++snowballCounter));
 			Pos position = player.getPosition().add(0, player.getEyeHeight(), 0);
 
-			//System.out.println("Before shootFromRotation");
-			projectile.shootFromRotation(position.pitch(), position.yaw(), 0, 1.5, 1.0);
+			//projectile.shootFromRotation(position.pitch(), position.yaw(), 0, 1.5, 1.0);
 
 			Vec direction = position.direction();
 			Vec velocity = direction.mul(1.5);
